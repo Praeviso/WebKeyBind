@@ -253,6 +253,11 @@ function showNotification(message, type = 'info') {
  */
 function handleMessage(message, sender, sendResponse) {
   switch (message.action) {
+    case 'ping':
+      // 用于检测 content script 是否已加载
+      sendResponse({ success: true, loaded: true });
+      break;
+
     case 'startElementSelection':
       startElementSelection();
       sendResponse({ success: true });

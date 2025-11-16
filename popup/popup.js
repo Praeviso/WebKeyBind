@@ -47,6 +47,9 @@ function bindEvents() {
  */
 async function startElementSelection() {
   try {
+    // 确保 content script 已加载
+    await ensureContentScriptLoaded();
+
     // 发送消息到content script启动元素选择
     await chrome.tabs.sendMessage(currentTab.id, {
       action: 'startElementSelection'
@@ -60,6 +63,43 @@ async function startElementSelection() {
   } catch (error) {
     console.error('Failed to start element selection:', error);
     alert('无法启动元素选择，请刷新页面后重试');
+  }
+}
+
+/**
+ * 确保 content script 已加载到当前 tab
+ */
+async function ensureContentScriptLoaded() {
+  try {
+    // 尝试 ping content script
+    await chrome.tabs.sendMessage(currentTab.id, { action: 'ping' });
+    console.log('[WebKeyBind Popup] Content script already loaded');
+  } catch (error) {
+    // Content script 未加载，需要手动注入
+    console.log('[WebKeyBind Popup] Content script not loaded, injecting...');
+
+    try {
+      // 注入 content scripts
+      await chrome.scripting.executeScript({
+        target: { tabId: currentTab.id },
+        files: [
+          'core/types.js',
+          'core/handlers/ButtonHandler.js',
+          'core/HandlerRegistry.js',
+          'core/ElementSelector.js',
+          'content/ConfigPanel.js',
+          'content/content.js'
+        ]
+      });
+
+      console.log('[WebKeyBind Popup] Content script injected successfully');
+
+      // 等待一小段时间让脚本初始化
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (injectError) {
+      console.error('[WebKeyBind Popup] Failed to inject content script:', injectError);
+      throw new Error('无法注入脚本，请刷新页面后重试');
+    }
   }
 }
 
@@ -172,6 +212,9 @@ async function testBinding(id) {
       return;
     }
 
+    // 确保 content script 已加载
+    await ensureContentScriptLoaded();
+
     // 发送消息到content script测试
     await chrome.tabs.sendMessage(currentTab.id, {
       action: 'testBinding',
@@ -180,7 +223,7 @@ async function testBinding(id) {
 
   } catch (error) {
     console.error('Failed to test binding:', error);
-    alert('测试失败，请确保页面已加载');
+    alert('测试失败: ' + error.message);
   }
 }
 

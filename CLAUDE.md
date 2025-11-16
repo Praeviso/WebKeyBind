@@ -130,6 +130,7 @@ Configuration stored in `chrome.storage.sync` under key `bindings`:
 - **Keydown handling**: Content script normalizes modifier keys (Ctrl+Alt+Shift+Meta + key) for matching
 - **Input focus control**: Each binding can optionally ignore text input focus (via `ignoreInputFocus` flag). By default, shortcuts are blocked when focus is in text/password/email inputs or textareas, but work in radio/checkbox/button elements. Setting `ignoreInputFocus: true` allows the shortcut to trigger regardless of focus state.
 - **Message passing**: Popup ↔ Background ↔ Content uses `chrome.runtime.sendMessage` and `chrome.tabs.sendMessage`
+- **Dynamic script injection**: Popup automatically injects content scripts into tabs if not already loaded (handles tab switches without requiring page refresh)
 
 ## Content Script Lifecycle
 
