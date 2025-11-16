@@ -92,21 +92,18 @@ function handleKeyDown(event) {
   // 如果元素选择器处于活动状态，不处理快捷键
   if (elementSelector && elementSelector.isActive) return;
 
-  // 如果焦点在输入框中，不触发快捷键（可配置）
-  const activeElement = document.activeElement;
-  const isInputFocused = activeElement &&
-    (activeElement.tagName === 'INPUT' ||
-     activeElement.tagName === 'TEXTAREA' ||
-     activeElement.isContentEditable);
-
-  if (isInputFocused) return;
-
   // 构建当前按下的快捷键字符串
   const pressedKey = buildKeyString(event);
 
   // 查找匹配的绑定
   for (let binding of activeBindings) {
     if (normalizeKey(binding.key) === normalizeKey(pressedKey)) {
+      // 检查该绑定是否需要检查焦点
+      // 默认情况下，在文本输入框中不触发快捷键（除非绑定明确设置 ignoreInputFocus = true）
+      if (!binding.ignoreInputFocus && isInTextInput()) {
+        continue; // 跳过这个绑定，继续检查其他绑定
+      }
+
       event.preventDefault();
       event.stopPropagation();
 
@@ -115,6 +112,23 @@ function handleKeyDown(event) {
       break;
     }
   }
+}
+
+/**
+ * 检查焦点是否在文本输入框中
+ */
+function isInTextInput() {
+  const activeElement = document.activeElement;
+  if (!activeElement) return false;
+
+  return (
+    activeElement.tagName === 'TEXTAREA' ||
+    activeElement.isContentEditable ||
+    (activeElement.tagName === 'INPUT' &&
+     !['radio', 'checkbox', 'button', 'submit', 'reset', 'image', 'file'].includes(
+       activeElement.type?.toLowerCase()
+     ))
+  );
 }
 
 /**

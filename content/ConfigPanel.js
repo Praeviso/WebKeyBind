@@ -203,6 +203,33 @@ class ConfigPanel {
           <div style="font-size: 12px; color: #999; margin-top: 4px;">当前域名: ${this.domain}</div>
         </div>
 
+        <div style="margin-bottom: 20px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+          <label style="
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+          ">
+            <input
+              type="checkbox"
+              id="webkeybind-ignore-focus"
+              style="
+                width: 18px;
+                height: 18px;
+                margin: 0;
+                margin-right: 10px;
+                cursor: pointer;
+              "
+            />
+            <span style="font-size: 14px; color: #555; font-weight: 500;">
+              忽略输入框焦点限制
+            </span>
+          </label>
+          <div style="font-size: 12px; color: #999; margin-top: 8px; margin-left: 28px;">
+            勾选后，即使焦点在文本输入框中也能触发此快捷键
+          </div>
+        </div>
+
         <div style="display: flex; gap: 12px;">
           <button id="webkeybind-cancel-btn" style="
             flex: 1;
@@ -340,10 +367,12 @@ class ConfigPanel {
     const keyInput = this.panel.querySelector('#webkeybind-key-input');
     const descInput = this.panel.querySelector('#webkeybind-description-input');
     const urlInput = this.panel.querySelector('#webkeybind-url-input');
+    const ignoreFocusCheckbox = this.panel.querySelector('#webkeybind-ignore-focus');
 
     const key = keyInput.value.trim();
     const description = descInput.value.trim();
     const url = urlInput.value.trim();
+    const ignoreInputFocus = ignoreFocusCheckbox.checked;
 
     // 验证
     if (!key) {
@@ -367,6 +396,7 @@ class ConfigPanel {
       selector: this.selectedData.selector,
       key: key,
       description: description,
+      ignoreInputFocus: ignoreInputFocus,
       enabled: true,
       createdAt: Date.now()
     };

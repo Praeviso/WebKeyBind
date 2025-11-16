@@ -67,10 +67,14 @@ class ElementSelector {
   _handleMouseMove(event) {
     event.stopPropagation();
 
-    const element = event.target;
+    // 获取鼠标位置下的所有元素
+    let element = event.target;
 
     // 忽略提示框本身
     if (element.id === 'webkeybind-selector-tip') return;
+
+    // 尝试获取实际的可交互元素（穿透 span 等内联元素）
+    element = this._findInteractiveElement(element);
 
     // 如果是新元素，更新高亮
     if (element !== this.hoveredElement) {
@@ -88,15 +92,25 @@ class ElementSelector {
     event.preventDefault();
     event.stopPropagation();
 
-    const element = event.target;
+    let element = event.target;
 
     // 忽略提示框点击
     if (element.id === 'webkeybind-selector-tip') return;
+
+    // 尝试获取实际的可交互元素（穿透 span 等内联元素）
+    element = this._findInteractiveElement(element);
+
+    console.log('[WebKeyBind] Element clicked:', element);
+    console.log('[WebKeyBind] Element tag:', element.tagName);
+    console.log('[WebKeyBind] Element classes:', element.className);
+    console.log('[WebKeyBind] Element type:', element.getAttribute('type'));
 
     // 检测元素类型
     const handler = window.handlerRegistry.detectHandler(element);
 
     if (handler) {
+      console.log('[WebKeyBind] Handler found:', handler.constructor.name);
+
       // 获取元素选择器信息
       const selectorInfo = handler.getSelector(element);
 
@@ -109,6 +123,9 @@ class ElementSelector {
         }
       }
 
+      console.log('[WebKeyBind] Element type:', elementType);
+      console.log('[WebKeyBind] Selector info:', selectorInfo);
+
       // 调用回调
       if (this.onSelectCallback) {
         this.onSelectCallback({
@@ -118,6 +135,7 @@ class ElementSelector {
         });
       }
     } else {
+      console.log('[WebKeyBind] No handler found for element');
       alert('该元素类型暂不支持，请选择按钮元素。');
     }
 
@@ -192,6 +210,33 @@ class ElementSelector {
     if (tip) {
       tip.remove();
     }
+  }
+
+  /**
+   * 查找可交互的父元素
+   * 当用户点击按钮内的 span 或其他内联元素时，找到实际的按钮元素
+   * @private
+   */
+  _findInteractiveElement(element) {
+    let current = element;
+    let depth = 0;
+    const maxDepth = 5; // 最多向上查找5层
+
+    while (current && depth < maxDepth) {
+      // 检查当前元素是否可以被任何 handler 处理
+      const handler = window.handlerRegistry.detectHandler(current);
+      if (handler) {
+        console.log(`[WebKeyBind] Found interactive element at depth ${depth}:`, current);
+        return current;
+      }
+
+      current = current.parentElement;
+      depth++;
+    }
+
+    // 如果没找到，返回原始元素
+    console.log('[WebKeyBind] No interactive parent found, using original element');
+    return element;
   }
 }
 
