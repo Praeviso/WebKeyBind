@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebKeyBind - 快捷键管理</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WebKeyBind</h1>
+      <p class="subtitle">快捷键绑定管理</p>
+    </header>
+
+    <div class="current-page">
+      <div class="page-info">
+        <strong>当前页面:</strong>
+        <span id="currentDomain">-</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="addBindingBtn" class="btn btn-primary">
+        + 新增快捷键绑定
+      </button>
+    </div>
+
+    <!-- 新增/编辑绑定表单 -->
+    <div id="bindingForm" class="form-section hidden">
+      <h3 id="formTitle">新增快捷键绑定</h3>
+
+      <div class="form-group">
+        <label>元素类型</label>
+        <select id="elementType">
+          <option value="button">按钮 (Button)</option>
+          <!-- 未来可扩展其他类型 -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>选择元素</label>
+        <button id="selectElementBtn" class="btn btn-secondary">
+          点击选择页面元素
+        </button>
+        <small class="hint">点击后在页面上选择元素，完成后重新打开扩展</small>
+        <div id="selectedElementInfo" class="element-info hidden">
+          <p><strong>已选择:</strong> <span id="selectedElementText"></span></p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="keyInput">快捷键</label>
+        <input type="text" id="keyInput" placeholder="按下快捷键..." readonly>
+        <small class="hint">点击输入框后按下您想要的快捷键组合</small>
+      </div>
+
+      <div class="form-group">
+        <label for="descriptionInput">描述</label>
+        <input type="text" id="descriptionInput" placeholder="如: 点击提交按钮">
+      </div>
+
+      <div class="form-group">
+        <label for="urlPattern">URL模式 (可选)</label>
+        <input type="text" id="urlPattern" placeholder="https://example.com/* (留空则匹配整个域名)">
+        <small class="hint">支持通配符 *</small>
+      </div>
+
+      <div class="form-actions">
+        <button id="saveBindingBtn" class="btn btn-primary">保存</button>
+        <button id="cancelFormBtn" class="btn btn-secondary">取消</button>
+      </div>
+    </div>
+
+    <!-- 绑定列表 -->
+    <div class="bindings-section">
+      <h3>当前页面的快捷键</h3>
+      <div id="bindingsList" class="bindings-list">
+        <p class="empty-state">暂无快捷键绑定</p>
+      </div>
+    </div>
+
+    <div class="bindings-section">
+      <h3>所有快捷键</h3>
+      <div id="allBindingsList" class="bindings-list">
+        <p class="empty-state">暂无快捷键绑定</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 加载核心文件 -->
+  <script src="../core/types.js"></script>
+  <script src="../core/handlers/ButtonHandler.js"></script>
+  <script src="../core/HandlerRegistry.js"></script>
+  <script src="../core/ElementSelector.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

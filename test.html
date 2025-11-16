@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebKeyBind 测试页面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .button-container {
+      margin: 20px 0;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #4CAF50;
+      color: white;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      border-radius: 4px;
+    }
+    .log {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      border-radius: 4px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebKeyBind 测试页面</h1>
+
+  <div class="info">
+    <h3>测试步骤：</h3>
+    <ol>
+      <li>确保已在 chrome://extensions/ 中加载并启用了 WebKeyBind 扩展</li>
+      <li>刷新本页面（F5）</li>
+      <li>打开浏览器控制台（F12）查看 [WebKeyBind] 日志</li>
+      <li>点击扩展图标打开 popup</li>
+      <li>点击"新增快捷键绑定"</li>
+      <li>点击"点击选择页面元素"按钮</li>
+      <li>在本页面选择一个按钮</li>
+      <li>设置快捷键（如 Ctrl+1）并保存</li>
+      <li>按下快捷键测试</li>
+    </ol>
+  </div>
+
+  <div class="button-container">
+    <h3>测试按钮：</h3>
+    <button id="btn1" onclick="handleClick('按钮1')">按钮 1</button>
+    <button id="btn2" onclick="handleClick('按钮2')">按钮 2</button>
+    <button class="btn-test" onclick="handleClick('按钮3')">按钮 3</button>
+    <button onclick="handleClick('按钮4')">按钮 4</button>
+  </div>
+
+  <div class="log" id="log">
+等待操作...
+  </div>
+
+  <script>
+    function handleClick(buttonName) {
+      const log = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      log.textContent = `[${timestamp}] ${buttonName} 被点击了！\n` + log.textContent;
+      console.log(`[Test Page] ${buttonName} clicked at ${timestamp}`);
+    }
+
+    // 检查扩展是否注入了 content script
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        console.log('[Test Page] Checking WebKeyBind injection...');
+        console.log('[Test Page] window.ElementType:', typeof window.ElementType);
+        console.log('[Test Page] window.handlerRegistry:', typeof window.handlerRegistry);
+        console.log('[Test Page] window.ElementSelector:', typeof window.ElementSelector);
+
+        if (typeof window.handlerRegistry === 'undefined') {
+          console.error('[Test Page] ⚠️ WebKeyBind content script not loaded!');
+          const log = document.getElementById('log');
+          log.textContent = '⚠️ 警告：WebKeyBind content script 未加载！\n请检查：\n1. 扩展是否已启用\n2. 是否已刷新页面\n3. 查看控制台是否有错误';
+        } else {
+          console.log('[Test Page] ✓ WebKeyBind content script loaded successfully');
+          const log = document.getElementById('log');
+          log.textContent = '✓ WebKeyBind content script 已加载\n等待操作...';
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>

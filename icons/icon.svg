@@ -1,0 +1,39 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 圆角矩形背景 -->
+  <rect width="128" height="128" rx="24" fill="url(#grad)"/>
+
+  <!-- 键盘图标 -->
+  <g transform="translate(20, 30)">
+    <!-- 键盘主体 -->
+    <rect x="0" y="0" width="88" height="68" rx="6" fill="white" opacity="0.9"/>
+
+    <!-- 键帽 -->
+    <!-- 第一行 -->
+    <rect x="8" y="8" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="24" y="8" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="40" y="8" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="56" y="8" width="12" height="12" rx="2" fill="#667eea"/>
+
+    <!-- 第二行 -->
+    <rect x="8" y="24" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="24" y="24" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="40" y="24" width="12" height="12" rx="2" fill="#667eea"/>
+    <rect x="56" y="24" width="12" height="12" rx="2" fill="#667eea"/>
+
+    <!-- 第三行 (空格键) -->
+    <rect x="20" y="40" width="48" height="12" rx="2" fill="#ffd700"/>
+  </g>
+
+  <!-- 鼠标指针图标 -->
+  <g transform="translate(70, 85)">
+    <path d="M 0,0 L 0,20 L 8,15 L 12,22 L 16,20 L 12,13 L 18,12 Z" fill="white" stroke="#333" stroke-width="1"/>
+  </g>
+</svg>

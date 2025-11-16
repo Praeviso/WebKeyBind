@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "WebKeyBind",
+  "version": "1.0.0",
+  "description": "为不同网站的页面元素绑定快捷键",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "core/types.js",
+        "core/handlers/ButtonHandler.js",
+        "core/HandlerRegistry.js",
+        "core/ElementSelector.js",
+        "content/ConfigPanel.js",
+        "content/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
