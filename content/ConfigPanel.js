@@ -9,6 +9,8 @@ class ConfigPanel {
     this.selectedData = null;
     this.domain = window.location.hostname;
     this.onSaveCallback = null;
+    this.editMode = false;
+    this.existingBinding = null;
   }
 
   /**
@@ -19,6 +21,39 @@ class ConfigPanel {
   show(selectedData, onSave) {
     this.selectedData = selectedData;
     this.onSaveCallback = onSave;
+    this.editMode = false;
+    this.existingBinding = null;
+
+    // 创建遮罩层
+    this.createOverlay();
+
+    // 创建面板
+    this.createPanel();
+
+    // 显示
+    document.body.appendChild(this.overlay);
+    document.body.appendChild(this.panel);
+
+    // 焦点到快捷键输入框
+    setTimeout(() => {
+      const keyInput = this.panel.querySelector('#webkeybind-key-input');
+      if (keyInput) keyInput.focus();
+    }, 100);
+  }
+
+  /**
+   * 显示编辑面板
+   * @param {Object} binding - 要编辑的绑定对象
+   * @param {Function} onSave - 保存回调函数
+   */
+  showEdit(binding, onSave) {
+    this.selectedData = {
+      elementType: binding.elementType,
+      selector: binding.selector
+    };
+    this.onSaveCallback = onSave;
+    this.editMode = true;
+    this.existingBinding = binding;
 
     // 创建遮罩层
     this.createOverlay();
@@ -115,7 +150,7 @@ class ConfigPanel {
       </style>
       <div style="padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2 style="margin: 0; font-size: 20px; color: #333;">配置快捷键绑定</h2>
+          <h2 style="margin: 0; font-size: 20px; color: #333;">${this.editMode ? '编辑快捷键绑定' : '配置快捷键绑定'}</h2>
           <button id="webkeybind-close-btn" style="
             background: none;
             border: none;
@@ -132,7 +167,7 @@ class ConfigPanel {
         </div>
 
         <div style="margin-bottom: 16px; padding: 12px; background: #f0f7ff; border-radius: 6px; border-left: 3px solid #4CAF50;">
-          <div style="font-size: 12px; color: #666; margin-bottom: 4px;">已选择元素</div>
+          <div style="font-size: 12px; color: #666; margin-bottom: 4px;">${this.editMode ? '绑定元素' : '已选择元素'}</div>
           <div style="font-size: 14px; color: #333; font-weight: 500;">${this.escapeHtml(this.selectedData.selector.textContent || '元素')}</div>
         </div>
 
@@ -144,6 +179,7 @@ class ConfigPanel {
             type="text"
             id="webkeybind-key-input"
             placeholder="点击后按下快捷键组合..."
+            value="${this.editMode && this.existingBinding ? this.escapeHtml(this.existingBinding.key) : ''}"
             readonly
             style="
               width: 100%;
@@ -168,7 +204,7 @@ class ConfigPanel {
             type="text"
             id="webkeybind-description-input"
             placeholder="如：点击提交按钮"
-            value="${this.escapeHtml('触发: ' + (this.selectedData.selector.textContent || ''))}"
+            value="${this.editMode && this.existingBinding ? this.escapeHtml(this.existingBinding.description) : this.escapeHtml('触发: ' + (this.selectedData.selector.textContent || ''))}"
             style="
               width: 100%;
               padding: 10px 12px;
@@ -189,7 +225,7 @@ class ConfigPanel {
             type="text"
             id="webkeybind-url-input"
             placeholder="留空则匹配整个域名，支持通配符 *"
-            value="${window.location.href.split('?')[0]}*"
+            value="${this.editMode && this.existingBinding ? this.escapeHtml(this.existingBinding.url || '') : window.location.href.split('?')[0] + '*'}"
             style="
               width: 100%;
               padding: 10px 12px;
@@ -213,6 +249,7 @@ class ConfigPanel {
             <input
               type="checkbox"
               id="webkeybind-ignore-focus"
+              ${this.editMode && this.existingBinding && this.existingBinding.ignoreInputFocus ? 'checked' : ''}
               style="
                 width: 18px;
                 height: 18px;
@@ -226,7 +263,7 @@ class ConfigPanel {
             </span>
           </label>
           <div style="font-size: 12px; color: #999; margin-top: 8px; margin-left: 28px;">
-            勾选后，即使焦点在文本输入框中也能触发此快捷键
+            勾选后,即使焦点在文本输入框中也能触发此快捷键
           </div>
         </div>
 
@@ -254,7 +291,7 @@ class ConfigPanel {
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-          ">保存快捷键</button>
+          ">${this.editMode ? '更新快捷键' : '保存快捷键'}</button>
         </div>
       </div>
     `;
@@ -389,7 +426,7 @@ class ConfigPanel {
 
     // 构建绑定对象
     const binding = {
-      id: 'binding_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      id: this.editMode && this.existingBinding ? this.existingBinding.id : 'binding_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
       domain: this.domain,
       url: url || '',
       elementType: this.selectedData.elementType,
@@ -398,13 +435,13 @@ class ConfigPanel {
       description: description,
       ignoreInputFocus: ignoreInputFocus,
       enabled: true,
-      createdAt: Date.now()
+      createdAt: this.editMode && this.existingBinding ? this.existingBinding.createdAt : Date.now()
     };
 
     // 禁用保存按钮
     const saveBtn = this.panel.querySelector('#webkeybind-save-btn');
     saveBtn.disabled = true;
-    saveBtn.textContent = '保存中...';
+    saveBtn.textContent = this.editMode ? '更新中...' : '保存中...';
     saveBtn.style.opacity = '0.6';
 
     try {
@@ -417,7 +454,7 @@ class ConfigPanel {
       this.hide();
 
       // 显示成功通知
-      showNotification('✓ 快捷键保存成功！', 'success');
+      showNotification(this.editMode ? '✓ 快捷键更新成功！' : '✓ 快捷键保存成功！', 'success');
 
     } catch (error) {
       console.error('[WebKeyBind] Failed to save binding:', error);
@@ -425,7 +462,7 @@ class ConfigPanel {
 
       // 恢复按钮
       saveBtn.disabled = false;
-      saveBtn.textContent = '保存快捷键';
+      saveBtn.textContent = this.editMode ? '更新快捷键' : '保存快捷键';
       saveBtn.style.opacity = '1';
     }
   }

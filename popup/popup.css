@@ -67,6 +67,7 @@ header h1 {
   font-weight: 500;
   transition: all 0.2s;
   outline: none;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -93,7 +94,22 @@ header h1 {
 
 .btn-small {
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: 11px;
+  min-width: 50px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.btn-primary.btn-small {
+  background: #667eea;
+  color: white;
+  width: auto;
+}
+
+.btn-primary.btn-small:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.4);
 }
 
 .btn-danger {
@@ -105,6 +121,17 @@ header h1 {
   background: #d32f2f;
 }
 
+.btn-danger.btn-small {
+  background: #f44336;
+  width: auto;
+}
+
+.btn-danger.btn-small:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(244, 67, 54, 0.4);
+}
+
 .btn-success {
   background: #4CAF50;
   color: white;
@@ -112,6 +139,17 @@ header h1 {
 
 .btn-success:hover {
   background: #45a049;
+}
+
+.btn-success.btn-small {
+  background: #4CAF50;
+  width: auto;
+}
+
+.btn-success.btn-small:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(76, 175, 80, 0.4);
 }
 
 /* 绑定列表 */
@@ -171,7 +209,7 @@ header h1 {
 
 .binding-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .binding-description {

@@ -273,6 +273,11 @@ function handleMessage(message, sender, sendResponse) {
       sendResponse({ success: true });
       break;
 
+    case 'editBinding':
+      startEditBinding(message.binding);
+      sendResponse({ success: true });
+      break;
+
     default:
       sendResponse({ success: false, error: 'Unknown action' });
   }
@@ -325,6 +330,44 @@ function startElementSelection() {
             reject(new Error(response?.error || '保存失败'));
           }
         });
+      });
+    });
+  });
+}
+
+/**
+ * 启动编辑绑定模式
+ */
+function startEditBinding(binding) {
+  console.log('[WebKeyBind] startEditBinding called', binding);
+
+  if (!window.ConfigPanel) {
+    console.error('[WebKeyBind] ConfigPanel class not found!');
+    alert('配置面板未加载，请刷新页面后重试');
+    return;
+  }
+
+  if (!configPanel) {
+    configPanel = new window.ConfigPanel();
+  }
+
+  // 直接显示编辑面板
+  configPanel.showEdit(binding, async (updatedBinding) => {
+    // 更新绑定
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({
+        action: 'saveBinding',
+        binding: updatedBinding
+      }, (response) => {
+        if (response && response.success) {
+          console.log('[WebKeyBind] Binding updated successfully');
+          // 重新加载绑定
+          loadBindings();
+          resolve();
+        } else {
+          console.error('[WebKeyBind] Failed to update binding:', response);
+          reject(new Error(response?.error || '更新失败'));
+        }
       });
     });
   });

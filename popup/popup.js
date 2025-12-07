@@ -139,10 +139,13 @@ function renderBindings(bindings, container) {
       <div class="binding-header">
         <span class="binding-key">${escapeHtml(binding.key)}</span>
         <div class="binding-actions">
-          <button class="btn btn-small btn-success" data-id="${binding.id}" data-action="test">
+          <button class="btn btn-small btn-primary" data-id="${binding.id}" data-action="edit" title="编辑绑定">
+            编辑
+          </button>
+          <button class="btn btn-small btn-success" data-id="${binding.id}" data-action="test" title="测试绑定">
             测试
           </button>
-          <button class="btn btn-small btn-danger" data-id="${binding.id}" data-action="delete">
+          <button class="btn btn-small btn-danger" data-id="${binding.id}" data-action="delete" title="删除绑定">
             删除
           </button>
         </div>
@@ -163,7 +166,7 @@ function renderBindings(bindings, container) {
 }
 
 /**
- * 处理绑定操作（测试、删除）
+ * 处理绑定操作（编辑、测试、删除）
  */
 async function handleBindingAction(event) {
   const action = event.target.dataset.action;
@@ -175,6 +178,8 @@ async function handleBindingAction(event) {
     }
   } else if (action === 'test') {
     await testBinding(id);
+  } else if (action === 'edit') {
+    await editBinding(id);
   }
 }
 
@@ -224,6 +229,39 @@ async function testBinding(id) {
   } catch (error) {
     console.error('Failed to test binding:', error);
     alert('测试失败: ' + error.message);
+  }
+}
+
+/**
+ * 编辑绑定
+ */
+async function editBinding(id) {
+  try {
+    const result = await chrome.storage.sync.get(['bindings']);
+    const binding = (result.bindings || []).find(b => b.id === id);
+
+    if (!binding) {
+      alert('绑定不存在');
+      return;
+    }
+
+    // 确保 content script 已加载
+    await ensureContentScriptLoaded();
+
+    // 发送消息到content script开启编辑模式
+    await chrome.tabs.sendMessage(currentTab.id, {
+      action: 'editBinding',
+      binding: binding
+    });
+
+    console.log('[WebKeyBind Popup] Edit mode started for binding:', id);
+
+    // 关闭 popup，让用户在页面上编辑
+    window.close();
+
+  } catch (error) {
+    console.error('Failed to edit binding:', error);
+    alert('编辑失败: ' + error.message);
   }
 }
 
